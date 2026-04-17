@@ -74,3 +74,14 @@ Compass surfaces a "this is a natural stopping point" suggestion at major break 
 > Free-form. The agent reads this paragraph every session. Use it to share anything Compass should remember about how you like to work together.
 
 {{Free-form notes. Example: "I'm new to managing complex medical cases. Err on the side of explaining more rather than less. I prefer receiving drafts I can edit rather than finished artifacts I have to decide on."}}
+
+---
+
+## System (auto-managed — do not edit by hand)
+
+> These fields are maintained per-machine in the host-level `<!-- compass:prefs -->` block (source of truth). They are documented here so team members know what Compass tracks. This case-local copy may lag behind the host-level block and should be treated as informational only.
+
+| Field | Description |
+|---|---|
+| **last_update_check** | Date of the most recent successful version check against the Compass GitHub repo. Written at the end of `/compass:update` (interactive runs only) and at the start of `/compass:troubleshoot`. |
+| **last_known_version** | Latest upstream version string observed during the most recent check. Used to decide whether to surface an update nudge. |

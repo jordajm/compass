@@ -332,14 +332,22 @@ host: [host]
 
 Print a summary of everything created. Then:
 
-> You're all set. Here's what you can do now:
+> You're all set. Compass is now watching [patient]'s case.
 >
-> - `/compass:update` — catch up on new files, emails, meetings, and calendar
-> - `/compass:research "your question"` — deep research on any treatment or care question
-> - `/compass:todo` — manage action items
-> - `/compass:email "draft to [someone]"` — draft an email with full case context
-> - `/compass:prep "meeting with [someone]"` — prep file for an upcoming call
-> - `/compass:contacts` — manage your care team and external contacts
+> You don't need to memorize any commands. Just say what you want in plain language — I'll figure out the right tool:
+>
+> - "What's new today?"              →  catches you up
+> - "Draft a reply to Dr. [name]."   →  email draft
+> - "What's on my to-do list?"       →  to-do view
+> - "Research [question]."           →  deep research
+> - "Prep me for tomorrow's call."   →  meeting prep
+> - "Who's on the care team?"        →  contacts
+>
+> If something ever seems off, say "troubleshoot" and I'll run a health check.
+>
+> Power-user shortcuts (optional):
+> `/compass:update`  `/compass:research`  `/compass:email`  `/compass:todo`
+> `/compass:prep`    `/compass:contacts`  `/compass:briefing`  `/compass:troubleshoot`
 
 Host-specific closing note:
 

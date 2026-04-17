@@ -134,6 +134,8 @@ Compass will ask you a series of questions — who the patient is, their conditi
 
 Onboarding takes 5–15 minutes for a typical case and can be paused and resumed at any point.
 
+If anything feels off at any point, run `/compass:troubleshoot` (or `@troubleshoot` in Codex) for a health check covering plugin version, case file integrity, connector status, and storage writability.
+
 ---
 
 ## Privacy and Safety
@@ -147,6 +149,8 @@ Onboarding takes 5–15 minutes for a typical case and can be paused and resumed
 ---
 
 ## Troubleshooting
+
+**Running a health check.** If anything feels off, run `/compass:troubleshoot` (or `@troubleshoot` in Codex) for a diagnostic report. It checks plugin version, case file integrity, connector status, storage writability, and whether a newer Compass release is available — then prints a single table with copyable fixes. Start here before the specific issues below.
 
 **"The agent says it can't find Gmail."**
 Gmail is optional. If you haven't configured the Gmail connector, Compass will skip email steps and continue. To enable Gmail, follow the connector setup instructions in `/compass:onboarding` or run it again and choose the Gmail option.

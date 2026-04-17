@@ -24,14 +24,14 @@
     ],
     "websiteURL": "https://github.com/jordajm/compass",
     "defaultPrompt": [
-      "@onboarding — start here to set up your case files",
-      "@update — daily catch-up: new files, emails, calendar, briefing",
-      "@research — deep research on any medical question",
-      "@todo — view and manage your care team to-do list",
-      "@email — draft a message to a doctor, family member, or consultant",
-      "@prep — prep file for an upcoming call or appointment",
-      "@contacts — view or update the care team directory",
-      "@briefing — configure or send the daily briefing email"
+      "What's new today?",
+      "Draft a reply to Dr. [name].",
+      "What's on my to-do list?",
+      "Research [question].",
+      "Prep me for tomorrow's call.",
+      "Who's on the care team?",
+      "Troubleshoot — run a health check.",
+      "Set up a new case."
     ]
   }
 }

@@ -342,6 +342,14 @@ Write only after a successful run. If interrupted, the timestamp does not advanc
 
 ---
 
+## Step 7: Update Check
+
+Run the shared update-check logic defined in `CLAUDE.md` under "Update check". Honors the 24-hour cache stored in the `<!-- compass:prefs -->` block. If a newer version is available, append the update nudge after the briefing. On WebFetch failure, skip silently — never block or surface an error.
+
+Skip this entire step in `--scheduled` mode: no WebFetch, no cache write, no nudge. Interactive runs remain the trigger so a user is always present to act on the nudge.
+
+---
+
 ## Context-Coaching Note
 
 After the briefing, if the session has been long (many tool calls, large files read), say:

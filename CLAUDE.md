@@ -232,6 +232,28 @@ Never fail silently. Never block the run.
 
 ---
 
+## Update Check
+
+A silent 24-hour update check runs at the end of `/compass:update` and at the start of `/compass:troubleshoot`. Shared logic:
+
+1. Read `last_update_check` from the `<!-- compass:prefs -->` block in `~/.claude/CLAUDE.md` (or `~/.codex/AGENTS.md` per host).
+2. If missing or more than 24 hours ago:
+   - Read local version from `.claude-plugin/plugin.json` in the plugin install dir.
+   - `WebFetch https://raw.githubusercontent.com/jordajm/compass/main/.claude-plugin/plugin.json` with prompt "Return the value of the `version` field only."
+   - On WebFetch failure: skip silently, do not update `last_update_check` (retry next trigger).
+   - On success: update `last_update_check` (today's date) and `last_known_version` in the prefs block, writing only within the delimiters.
+3. If local version is behind latest (lexical semver compare on `X.Y.Z`; skip if parse fails), surface a short nudge after the skill's normal output. The nudge is a header line plus one host-matching fix line; for host `unknown`, include both fix lines:
+
+```
+A newer Compass is available (<local> → <latest>). To update:
+  Claude Code: /plugin marketplace update compass then reinstall
+  Codex:       cd ~/.codex/plugins/compass && git pull && bash scripts/build-codex.sh
+```
+
+**Safety:** Never fail a skill on update-check failure. Never auto-update. Nudge only. `/compass:troubleshoot` forces a fresh check (bypassing the 24h cache) and still writes back `last_update_check` / `last_known_version` on success so the next interactive run benefits from the fresh cache.
+
+---
+
 ## Safety Rules
 
 - The disclaimer ("This is not medical advice...") is the first line of every research report and every email draft.
