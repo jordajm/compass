@@ -1,0 +1,163 @@
+{
+  "_comment": "Compass recommended MCP server configuration. Only the filesystem server is required. All others are optional — the onboarding skill will walk you through enabling them. During onboarding, Compass writes the Codex equivalent of these entries to ~/.codex/config.toml.",
+
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${COMPASS_CASE_DIR}"],
+      "_comment": "REQUIRED. Set COMPASS_CASE_DIR to your case folder path, e.g. ~/Google Drive/My Drive/Compass — Patient Name. The onboarding skill sets this for you.",
+      "_status": "required"
+    },
+
+    "gmail": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-gmail"],
+      "env": {
+        "GMAIL_CLIENT_ID": "${GMAIL_CLIENT_ID}",
+        "GMAIL_CLIENT_SECRET": "${GMAIL_CLIENT_SECRET}",
+        "GMAIL_REFRESH_TOKEN": "${GMAIL_REFRESH_TOKEN}"
+      },
+      "_comment": "OPTIONAL. Enables /email drafts, inbox scanning in /update, and action-item extraction from email. The onboarding skill provides setup instructions.",
+      "_status": "optional"
+    },
+
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-google-calendar"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "${GOOGLE_CLIENT_ID}",
+        "GOOGLE_CLIENT_SECRET": "${GOOGLE_CLIENT_SECRET}",
+        "GOOGLE_REFRESH_TOKEN": "${GOOGLE_REFRESH_TOKEN}"
+      },
+      "_comment": "OPTIONAL. Enables upcoming-meeting detection and automatic meeting prep in /update.",
+      "_status": "optional"
+    },
+
+    "fireflies": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fireflies"],
+      "env": {
+        "FIREFLIES_API_KEY": "${FIREFLIES_API_KEY}"
+      },
+      "_comment": "OPTIONAL. Enables automatic meeting transcript ingestion in /update. Otter and Granola can be substituted — see onboarding for alternatives.",
+      "_status": "optional"
+    },
+
+    "apple-notes": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-apple-notes"],
+      "_comment": "OPTIONAL. macOS only. Enables reading Apple Notes during /update for meeting notes and quick captures.",
+      "_status": "optional",
+      "_platform": "macOS only"
+    }
+  },
+
+  "permissions": {
+    "_comment": "WebFetch allowlist for medical research domains used by /research. This list covers major medical literature, clinical trial registries, FDA resources, and oncology news sources.",
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:clinicaltrials.gov)",
+      "WebFetch(domain:classic.clinicaltrials.gov)",
+      "WebFetch(domain:pubmed.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:www.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:www.fda.gov)",
+      "WebFetch(domain:www.accessdata.fda.gov)",
+      "WebFetch(domain:dailymed.nlm.nih.gov)",
+      "WebFetch(domain:www.cancer.gov)",
+      "WebFetch(domain:www.nccn.org)",
+      "WebFetch(domain:www.nature.com)",
+      "WebFetch(domain:www.thelancet.com)",
+      "WebFetch(domain:www.cell.com)",
+      "WebFetch(domain:www.sciencedirect.com)",
+      "WebFetch(domain:academic.oup.com)",
+      "WebFetch(domain:link.springer.com)",
+      "WebFetch(domain:onlinelibrary.wiley.com)",
+      "WebFetch(domain:www.frontiersin.org)",
+      "WebFetch(domain:ascopubs.org)",
+      "WebFetch(domain:aacrjournals.org)",
+      "WebFetch(domain:jamanetwork.com)",
+      "WebFetch(domain:bmccancer.biomedcentral.com)",
+      "WebFetch(domain:jhoonline.biomedcentral.com)",
+      "WebFetch(domain:www.bjcancer.org)",
+      "WebFetch(domain:www.esmoopen.com)",
+      "WebFetch(domain:www.esmorarecancers.org)",
+      "WebFetch(domain:www.ejcped.com)",
+      "WebFetch(domain:www.oaepublish.com)",
+      "WebFetch(domain:www.pnas.org)",
+      "WebFetch(domain:www.biorxiv.org)",
+      "WebFetch(domain:pubs.rsc.org)",
+      "WebFetch(domain:jnm.snmjournals.org)",
+      "WebFetch(domain:ascopost.com)",
+      "WebFetch(domain:www.targetedonc.com)",
+      "WebFetch(domain:www.onclive.com)",
+      "WebFetch(domain:www.cancernetwork.com)",
+      "WebFetch(domain:oncodaily.com)",
+      "WebFetch(domain:www.statnews.com)",
+      "WebFetch(domain:www.drugs.com)",
+      "WebFetch(domain:www.gsk.com)",
+      "WebFetch(domain:us.gsk.com)",
+      "WebFetch(domain:www.gsk-studyregister.com)",
+      "WebFetch(domain:gsk-cu-portal.idea-point.com)",
+      "WebFetch(domain:gskusmedicalaffairs.com)",
+      "WebFetch(domain:contactus.gsk.com)",
+      "WebFetch(domain:ctv.veeva.com)",
+      "WebFetch(domain:clin.larvol.com)",
+      "WebFetch(domain:veri.larvol.com)",
+      "WebFetch(domain:sigma.larvol.com)",
+      "WebFetch(domain:trial.medpath.com)",
+      "WebFetch(domain:synapse.patsnap.com)",
+      "WebFetch(domain:www.clinicaltrialsregister.eu)",
+      "WebFetch(domain:trialsearch.who.int)",
+      "WebFetch(domain:ichgcp.net)",
+      "WebFetch(domain:www.centerwatch.com)",
+      "WebFetch(domain:www.acrpnet.org)",
+      "WebFetch(domain:www.smartpatients.com)",
+      "WebFetch(domain:navigator.reaganudall.org)",
+      "WebFetch(domain:www.careacross.com)",
+      "WebFetch(domain:www.curetoday.com)",
+      "WebFetch(domain:www.patlynk.com)",
+      "WebFetch(domain:www.mdanderson.org)",
+      "WebFetch(domain:www.dana-farber.org)",
+      "WebFetch(domain:www.stjude.org)",
+      "WebFetch(domain:www.seattlechildrens.org)",
+      "WebFetch(domain:stanfordhealthcare.org)",
+      "WebFetch(domain:med.stanford.edu)",
+      "WebFetch(domain:www.uclahealth.org)",
+      "WebFetch(domain:clinicaltrials.ucsf.edu)",
+      "WebFetch(domain:uofuhealth.utah.edu)",
+      "WebFetch(domain:www.fredhutch.org)",
+      "WebFetch(domain:www.cancer.columbia.edu)",
+      "WebFetch(domain:www.honorhealth.com)",
+      "WebFetch(domain:pennstatehealthnews.org)",
+      "WebFetch(domain:www.research.chop.edu)",
+      "WebFetch(domain:www.chop.edu)",
+      "WebFetch(domain:cdek.pharmacy.purdue.edu)",
+      "WebFetch(domain:preclinicalpivot.org)",
+      "WebFetch(domain:research.beatcc.org)",
+      "WebFetch(domain:www.pharmexec.com)",
+      "WebFetch(domain:www.pharmacytimes.com)",
+      "WebFetch(domain:www.prnewswire.com)",
+      "WebFetch(domain:www.adcreview.com)",
+      "WebFetch(domain:ge2p2-center.net)",
+      "WebFetch(domain:www.oncnursingnews.com)",
+      "WebFetch(domain:www.taihooncology.com)",
+      "WebFetch(domain:ir.ostherapies.com)",
+      "WebFetch(domain:www.echoimmune.com)",
+      "WebFetch(domain:peeltx.com)",
+      "WebFetch(domain:pylotum.com)",
+      "WebFetch(domain:3b-pharma.com)",
+      "WebFetch(domain:www.hspharm.com)",
+      "WebFetch(domain:sofie.com)",
+      "WebFetch(domain:snmmi.org)",
+      "WebFetch(domain:www.kitz-heidelberg.de)",
+      "WebFetch(domain:www.uicc.org)",
+      "WebFetch(domain:english.sysucc.org.cn)",
+      "WebFetch(domain:www.littlewarrior.org)",
+      "WebFetch(domain:www.mibagents.org)",
+      "WebFetch(domain:ucla.clinicaltrials.researcherprofiles.org)",
+      "WebFetch(domain:www.medbridgenz.com)",
+      "WebFetch(domain:www.magazine.medicaltourism.com)"
+    ]
+  }
+}

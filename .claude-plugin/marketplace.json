@@ -1,0 +1,16 @@
+{
+  "name": "compass",
+  "owner": {
+    "name": "John Jordan"
+  },
+  "metadata": {
+    "description": "Compass — AI co-pilot for families coordinating complex medical cases."
+  },
+  "plugins": [
+    {
+      "name": "compass",
+      "source": "./",
+      "description": "Open-source AI coordination assistant for families navigating complex medical cases. Maintains a structured case knowledge base, coordinates a multi-user care team, runs tiered research with regulatory-status awareness, drafts audience-aware communications, and proactively flags risks and surveillance gaps."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "compass",
+  "version": "0.1.0",
+  "description": "AI coordination assistant for complex medical cases",
+  "author": {
+    "name": "John Jordan"
+  },
+  "license": "MIT",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Compass",
+    "shortDescription": "Coordinate complex medical cases",
+    "longDescription": "Open-source AI coordination assistant for families navigating complex medical cases. Tracks case knowledge, coordinates care teams, drafts emails, manages to-dos, runs deep research with regulatory awareness, and flags proactive considerations. Works on Claude Code and Codex. All case data stays on your machine.",
+    "developerName": "John Jordan",
+    "category": "Productivity",
+    "capabilities": [
+      "case-knowledge-base",
+      "research",
+      "email-drafting",
+      "todo-management",
+      "care-team-coordination",
+      "proactive-monitoring"
+    ],
+    "websiteURL": "https://github.com/jordajm/compass",
+    "defaultPrompt": [
+      "@onboarding — start here to set up your case files",
+      "@update — daily catch-up: new files, emails, calendar, briefing",
+      "@research — deep research on any medical question",
+      "@todo — view and manage your care team to-do list",
+      "@email — draft a message to a doctor, family member, or consultant",
+      "@prep — prep file for an upcoming call or appointment",
+      "@contacts — view or update the care team directory",
+      "@briefing — configure or send the daily briefing email"
+    ]
+  }
+}

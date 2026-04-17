@@ -1,0 +1,56 @@
+# Compass — .gitignore
+#
+# Plugin source files (skills/, agents/, templates/, CLAUDE.md, README.md,
+# LICENSE, hooks/, scripts/, .claude-plugin/, .codex-plugin/, .mcp.json)
+# are NOT gitignored — they are part of the plugin and should be committed.
+#
+# The files below are user-created case data, configuration, and outputs.
+# Users who want to back up their case files should use their cloud sync
+# provider (Google Drive, Dropbox, iCloud) rather than a public git repo,
+# since these files contain sensitive medical information.
+
+# ── Case data (created by onboarding, contains PHI) ──────────────────────────
+# Leading slash anchors these to the repo root so templates/patient/ etc.
+# (which ARE plugin source and should be committed) are not matched.
+/patient/
+/care-team/
+/config/
+/documents/
+/meeting-notes/
+
+# ── User-created outputs ──────────────────────────────────────────────────────
+/reports/
+/TODO.md
+/considerations.md
+
+# ── Agent runtime state ───────────────────────────────────────────────────────
+.update-state.json
+.ingestion-state.json
+
+# ── macOS system files ────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V8
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ── oh-my-claudecode plugin internal state ────────────────────────────────────
+.omc/
+
+# ── Editor and IDE artifacts ──────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Node (for build scripts) ──────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+
+# ── Generated Codex subagent TOML files (build output, not source) ───────────
+# Uncomment the line below if you prefer to treat these as generated artifacts.
+# The default is to commit them so users who clone the repo get them immediately.
+# .codex-agents/

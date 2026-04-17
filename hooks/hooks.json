@@ -1,0 +1,40 @@
+{
+  "_comment": "Compass optional hooks. Disabled by default. The onboarding skill asks whether you want to enable automatic ingestion and briefings — if you say yes, it writes the appropriate settings. To enable manually, set your project .claude/settings.json 'hooks' block to include these entries.",
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "_name": "auto-ingest on file drop into documents/",
+        "_status": "example only — copy into .claude/settings.json to activate",
+        "_comment": "Triggers a quiet /update --ingest pass whenever a file is written into documents/. Requires the claude CLI to be on PATH.",
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '$CLAUDE_TOOL_INPUT' | jq -r '.file_path // empty' | grep -q '^.*documents/' && claude -p '/compass:update --ingest --quiet' --no-interactive || true"
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "_name": "briefing on session end if due",
+        "_status": "example only — copy into .claude/settings.json to activate",
+        "_comment": "Sends the daily briefing email (if configured and due) when a session ends cleanly.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "claude -p '/compass:briefing --if-due' --no-interactive || true"
+          }
+        ]
+      }
+    ]
+  },
+
+  "_scheduled_task": {
+    "_comment": "For hourly background updates (configured during onboarding), Compass uses a crontab entry. The onboarding skill writes this when you opt in to scheduled updates.",
+    "crontab_example": "0 * * * * cd \"$COMPASS_CASE_DIR\" && claude -p '/compass:update --scheduled' --no-interactive >> ~/.compass/update.log 2>&1",
+    "_note": "Replace $COMPASS_CASE_DIR with the absolute path to your case folder."
+  }
+}
