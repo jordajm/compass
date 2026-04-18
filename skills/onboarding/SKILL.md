@@ -16,12 +16,14 @@ Before any greeting, identify the host:
 
 ```
 CLAUDECODE env var present and = "1"  → host = "claude-code-cli"
-CLAUDE_DESKTOP env var present        → host = "claude-desktop"
-CODEX env var present                 → host = "codex"
+CLAUDE_DESKTOP env var present        → host = "claude-desktop"   (has Cowork built in)
+CODEX env var present                 → host = "codex"            (ambiguous: CLI or desktop app)
 Otherwise                             → host = "unknown" (treat as claude-code-cli)
 ```
 
 Store `host` — it determines wording in Steps 8 and 9.
+
+**Codex CLI vs desktop app disambiguation.** The `CODEX` env var is set by both the CLI and the desktop app; there's no clean way to tell them apart programmatically. If `host == "codex"` and we reach Step 9 (scheduling), ask the user one question: "Are you using the Codex desktop app or the Codex CLI?" and update `host` to `codex-desktop` or `codex-cli` before routing. No disambiguation is needed for Claude Desktop — all Claude Desktop builds ship Cowork, so `claude-desktop` always routes to Cowork Scheduled tasks.
 
 ---
 
@@ -161,6 +163,8 @@ Save to state. Proceed.
 
 ### Step 7: Documents Folder + Storage Setup
 
+**Core principle:** Never ask the user to run a shell command or navigate the filesystem. The skill (Claude) should guess the folder path, verify it exists using its own tools (`Glob`, `Bash ls`, `Read`), confirm with the user in plain language, and only fall back to asking them to type a path as a last resort. If the folder doesn't exist yet, ask permission to create it at the probed location.
+
 #### Storage choice
 
 Ask:
@@ -173,30 +177,68 @@ Ask:
 > 3. **Obsidian vault** — if you use Obsidian for notes
 > 4. **Local only** — just on this machine, no sync
 
-#### If Google Drive chosen (default path — most polished):
+#### Path probing (applies to every branch below)
 
-Walk through step by step:
+For every storage option, the flow is **probe → confirm → create if needed**. The skill must never demand that the user paste a full path unless all probes fail.
+
+1. Settle on a folder name. Default for the Drive/cloud branches: `Compass — [Patient Name]`. Default for local-only: `Compass/[patient-slug]`.
+2. Probe candidate parent paths for the operating system, in order, using `Glob` / `Bash ls`:
+
+   **macOS Google Drive**
+   - `~/Library/CloudStorage/GoogleDrive-*/My Drive/` (new-style Drive Desktop)
+   - `~/Google Drive/My Drive/` (legacy)
+
+   **Windows Google Drive**
+   - `C:\Users\{USERNAME}\My Drive\`
+   - `C:\Users\{USERNAME}\Google Drive\My Drive\`
+
+   **iCloud Drive (macOS)**
+   - `~/Library/Mobile Documents/com~apple~CloudDocs/`
+
+   **Dropbox**
+   - `~/Dropbox/`
+   - `~/Library/CloudStorage/Dropbox/` (macOS, newer)
+
+   **OneDrive**
+   - `~/Library/CloudStorage/OneDrive-*/` (macOS)
+   - `~/OneDrive/` (fallback)
+   - `C:\Users\{USERNAME}\OneDrive\` (Windows)
+
+   **Obsidian** — no canonical parent; probe `~/Documents/`, `~/Obsidian/`, `~/Vaults/` as a convenience.
+
+   **Local only** — `~/Compass/` is the default parent; no probe needed.
+
+3. Check whether the target folder (`<parent>/<folder-name>/`) already exists. Outcomes:
+   - **Exactly one parent matches and the folder already exists there** → present: "I found `<full-path>` — is that the folder you want to use?" Proceed on yes.
+   - **Exactly one parent matches but the folder doesn't exist yet** → present: "I can see `<parent>`. I'll create `<folder-name>` there — OK?" Proceed on yes, then create.
+   - **Multiple parents match** → list each as a numbered option and ask the user to pick.
+   - **Zero parents match** → fall back to the last-resort prompt below.
+
+4. Last-resort fallback (only if no probe succeeded): "I couldn't find `<provider>` installed in any of the usual places. Could you paste the full local path where you'd like the case files, or the path to an existing `<provider>` folder?"
+
+Whenever the chosen folder doesn't exist yet, use the `Write` / `Bash mkdir -p` tools to create it and the `documents/` subfolder, after confirming with the user.
+
+#### If Google Drive chosen (default path — most polished):
 
 1. "I'll need Google Drive Desktop installed on your machine. If you don't have it yet, download it at https://www.google.com/drive/download/ (macOS: dmg file, Windows: exe installer). Let me know when you're ready."
 2. Wait for user confirmation.
 3. "Sign in to Google Drive Desktop with the Google account you want to use for Compass."
-4. "Now, in Google Drive, create a new folder. I suggest naming it **Compass — [Patient Name]**. On macOS this will appear at `~/Google Drive/My Drive/Compass — [Patient Name]/`. On Windows: `C:\Users\[You]\Google Drive\My Drive\Compass — [Patient Name]\`."
-5. "What's the full local path to the folder?" (Offer the suggested path as default.)
-6. Store as `working_directory`.
-7. "If you have existing medical records, scan reports, or documents, drop them into the `documents/` subfolder I'm about to create. Compass will process them in batches — you don't have to do it all at once."
-8. Note the `.gdoc` rule: "One important rule for Drive: **do not open `.md` files with Google Docs.** Open the `.html` sibling file instead — I'll create one alongside every report. I'll pin this rule in the folder's README."
+4. Run the path-probing flow above with folder name `Compass — [Patient Name]`. If the probe finds the folder already, confirm and reuse. If it finds `My Drive` but no Compass folder, create it. If nothing is found, fall back to the last-resort prompt.
+5. Store the confirmed path as `working_directory`.
+6. "If you have existing medical records, scan reports, or documents, drop them into the `documents/` subfolder I'm about to create. Compass will process them in batches — you don't have to do it all at once."
+7. Note the `.gdoc` rule: "One important rule for Drive: **do not open `.md` files with Google Docs.** Open the `.html` sibling file instead — I'll create one alongside every report. I'll pin this rule in the folder's README."
 
 #### If Dropbox / iCloud / OneDrive:
 
-"What's the local path to your [provider] folder where you'd like the case files?" Collect `working_directory`. No dual-write `.html` is needed for these since they render `.md` natively — set `html_dual_write: false` in preferences.
+Run the path-probing flow for the chosen provider with folder name `Compass — [Patient Name]`. Confirm the detected path or create the folder at the found parent. Only ask the user to paste a path if every probe fails. Store as `working_directory`. No dual-write `.html` is needed for these since they render `.md` natively — set `html_dual_write: false` in preferences.
 
 #### If Obsidian vault:
 
-"What's the path to your Obsidian vault?" Collect `working_directory`. Set `html_dual_write: false`.
+Probe the Obsidian convenience locations (`~/Documents/`, `~/Obsidian/`, `~/Vaults/`) for existing vault directories (a vault is any folder containing a `.obsidian/` subfolder). If any are found, list them and let the user pick. Only ask for a pasted path if no candidate vault is detected. Once a vault is chosen, present: "I'll create `<vault>/Compass — [Patient Name]/` inside the vault — OK?" and on yes, create that subfolder. Store the subfolder path (not the vault root) as `working_directory`. Set `html_dual_write: false`.
 
 #### If local only:
 
-Suggest `~/Compass/[patient-slug]/` as default. Collect `working_directory`. Set `html_dual_write: false`.
+Default to `~/Compass/[patient-slug]/`. Confirm with the user, create the folder, and store as `working_directory`. Set `html_dual_write: false`.
 
 Save to state. Proceed.
 
@@ -226,15 +268,45 @@ Present the findings:
 >
 > Connected tools will be used automatically during `/compass:update`. Any you'd like to add? I can give you setup instructions. Or skip for now.
 
-For any connector the user wants to add, provide host-specific instructions:
+For any connector the user wants to add, warn first, then give host-specific instructions:
 
-| Host | Gmail setup | Calendar setup |
-|------|------------|---------------|
-| claude-code-cli | Add to `.mcp.json` in project root; `claude mcp add` command | Same pattern |
-| claude-desktop | Settings → Connectors → pick provider | Same pattern |
-| codex | Edit `~/.codex/config.toml` — add server entry | Same pattern |
+> **When the permissions dialog appears, check every box.** Compass needs every scope the connector exposes. For Gmail, that includes both "View email messages" and "Create drafts" — if either is unchecked, briefings and email drafts will silently fail. The same rule applies to Google Calendar (read + write), Outlook, and any other connector with multiple permission checkboxes.
 
-Write detected (and newly added) connectors to `config/connectors.md`.
+| Host | Gmail / Calendar / other connectors |
+|------|--------------------------------------|
+| claude-code-cli | Add to `.mcp.json` in project root; `claude mcp add` command |
+| claude-desktop | Settings → Connectors → pick the provider → sign in → **on the Google / Microsoft consent screen, check every permission box** → click Allow |
+| codex | Edit `~/.codex/config.toml` — add the server entry. When the OAuth consent screen opens in the browser, check every permission box before clicking Allow. |
+
+#### Post-connection capability probe
+
+After the user adds a connector, don't trust "connected" — probe each required scope. Use `ToolSearch` to resolve the exact MCP tool names the current host exposes (they're namespaced like `mcp__claude_ai_Gmail__gmail_list_drafts` in Claude Desktop; Codex and CLI hosts use different prefixes). Then invoke one tool per scope and report the outcome inline.
+
+| Connector | Scopes to verify | Capability probes (resolve exact tool names via `ToolSearch`) |
+|-----------|-----------------|---------------------------------------------------------------|
+| Gmail | View, Draft | **View**: profile + list-messages (e.g., `gmail_get_profile` + `gmail_search_messages`). **Draft**: list-drafts (e.g., `gmail_list_drafts`). |
+| Outlook | View, Draft | **View**: profile + list-folders (or list-messages). **Draft**: list-drafts (or equivalent). Exact names vary by Outlook MCP vendor. |
+| Google Calendar | Read, Write | **Read**: list-calendars + list-events for the next 7 days. **Write**: if a non-destructive `create-event` exists, dry-run with a past-dated or tentative event the user can delete; if not, note Write as "not verified" and flag in the report. |
+| Fireflies / Otter | List transcripts | List recent transcripts (any non-empty list or clean empty list proves auth works). |
+| Apple Notes | List notes | List notes (same logic). |
+
+**A probe fails** if the call returns an auth / scope / permission error. An empty list is not a failure — it means the scope works but there's no data.
+
+Report per connector, with one ✓ or ✗ per scope exercised. Success case:
+
+> Gmail: connected
+>   ✓ View (list-messages works)
+>   ✓ Draft (list-drafts works)
+
+Partial-scope failure:
+
+> Gmail: connected, but the Draft scope is missing.
+> I can read your inbox, but I can't create email drafts — so briefings won't work.
+> To fix: open Settings → Connectors → Gmail → Reconnect, and this time **check every permission box** on the consent screen.
+
+If a probe fails, offer to try again after the user reconnects, rather than proceeding with a broken scope. If a scope cannot be probed non-destructively (e.g., Calendar Write without a safe create-event), record it as "not verified" and move on — don't fabricate a pass.
+
+Write detected (and newly added) connectors — including the verified scopes — to `config/connectors.md`.
 
 Save to state. Proceed.
 
@@ -249,13 +321,38 @@ Ask:
 > - **Hourly updates**: Compass runs `/compass:update --scheduled` in the background and flags anything new.
 > - **Daily email briefing**: A summary email each morning (requires Gmail or Outlook connector).
 
-If they want hourly updates, provide host-specific setup:
+If they want hourly updates, route based on the detected host. The Claude Desktop and Codex desktop apps both have first-class schedulers (Cowork **Scheduled tasks** and Codex **Automations** respectively) — prefer those over cron for the Desktop hosts. Cron is only for the CLI hosts.
 
-| Host | Cron setup |
-|------|-----------|
+If `host == "codex"`, ask first: "Are you using the Codex desktop app or the Codex CLI?" and update the state variable to `codex-desktop` or `codex-cli` before picking the row. `claude-desktop` always routes to Cowork — no disambiguation needed.
+
+| Host | Setup |
+|------|-------|
+| claude-desktop | Use Cowork's built-in **Scheduled tasks** feature (ships with every Claude Desktop build). Sidebar → **Scheduled** → **New task** → paste the Compass prompt (generated below) → click **Work in a project** and pick the Compass project → **Frequency: Hourly** → **Save**. Step-by-step guide with screenshots: [`docs/install-cowork-scheduled-task.md`](../../docs/install-cowork-scheduled-task.md). |
+| codex-desktop | Use Codex's built-in **Automations** feature. Sidebar → **Automations** → new automation → **Standalone** → paste the Compass prompt (generated below) → scope to the Compass project → **Custom schedule: `0 * * * *`** → **Save**. Step-by-step guide: [`docs/install-codex-automations.md`](../../docs/install-codex-automations.md). |
 | claude-code-cli | `crontab -e` → add: `0 * * * * claude -p "/compass:update --scheduled && /compass:briefing --if-due" --cwd [working_directory]` |
-| claude-desktop | "At this time, scheduled tasks require using Claude Code CLI. I can show you how to set that up alongside Desktop." |
-| codex | `crontab -e` → add the Codex equivalent: `0 * * * * codex run "@update --scheduled" --cwd [working_directory]` |
+| codex-cli | `crontab -e` → add: `0 * * * * codex run "@update --scheduled" --cwd [working_directory]` |
+
+#### Generate and display the scheduled-task prompt (Desktop hosts)
+
+For the Cowork and Codex desktop branches, generate and display the natural-language prompt the user will paste into the scheduled task. The same prompt works for both hosts. Fill in `<Patient Name>` from state before displaying.
+
+```
+Run /compass:update --scheduled for the Compass — <Patient Name> project. This will:
+  - Pull new emails, calendar events, and meeting transcripts since the last run.
+  - Ingest any new files dropped in the documents/ folder.
+  - Update patient files (current-findings, consultation-log, considerations).
+  - Refresh TODO.md with any new action items, flag overdue items, and note items stale 7+ days.
+  - Run the proactive considerations pass and surface new risk flags.
+
+Then run /compass:briefing --if-due. If the briefing cadence says we're due, assemble today's briefing and save it as a draft in Gmail (or whichever email connector is configured). Do not auto-send.
+
+If any connector is missing or expired, skip that step and continue. Never block.
+```
+
+Display the prompt in a copyable code block, then add host-matching copy:
+
+- **claude-desktop:** "Paste this into the Description field when you create the Cowork Scheduled task. Set Frequency to Hourly and click **Work in a project** to select your Compass project. The step-by-step walkthrough with screenshots is at [`docs/install-cowork-scheduled-task.md`](../../docs/install-cowork-scheduled-task.md)."
+- **codex-desktop:** "Paste this into the Prompt field when you create the Codex Automation. Choose **Standalone** and scope it to your Compass project. For hourly, pick a custom schedule and enter `0 * * * *`. The step-by-step walkthrough is at [`docs/install-codex-automations.md`](../../docs/install-codex-automations.md)."
 
 If they want daily briefing:
 - Ask for preferred send time (default: 7:00 AM local)

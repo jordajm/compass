@@ -64,6 +64,8 @@ Compass works on both Claude Code CLI and Claude Desktop. Desktop is easier for 
 6. Create (or open) a folder for the patient's case. This is where Compass will store all case files. A Google-Drive-Desktop-synced folder works best so you can share it with your care team.
 7. In that folder, type `/compass:onboarding`. Compass will guide you through the rest.
 
+For a fully-illustrated walkthrough, see [`docs/install-claude-desktop.md`](docs/install-claude-desktop.md). To set up hourly background updates via Claude Cowork, see [`docs/install-cowork-scheduled-task.md`](docs/install-cowork-scheduled-task.md).
+
 ### Claude Code CLI
 
 Run these two commands inside any Claude Code session:
@@ -109,6 +111,8 @@ Codex's plugin ecosystem is UI-driven — plugins install through the in-app Plu
    ```
    This installs `compass-*.toml` subagent files at `~/.codex/agents/`.
 4. Navigate to your case folder and type `@onboarding` — Codex will auto-load the skill and start the guided setup.
+
+To set up hourly background updates via Codex Automations, see [`docs/install-codex-automations.md`](docs/install-codex-automations.md).
 
 ### Updating
 
