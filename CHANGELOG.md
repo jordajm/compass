@@ -8,6 +8,9 @@ Versioning rules and the per-commit bump policy live in `CLAUDE.md` → Commit P
 
 ## [Unreleased]
 
+### Changed
+- Claude Code reads the plugin version from the plugin entry in `.claude-plugin/marketplace.json` instead of `.claude-plugin/plugin.json`, following the docs recommendation for relative-path plugins. `bump-version.sh`, `/compass:release`, `/compass:troubleshoot`, and the 24-hour update-check in `CLAUDE.md` are updated to match. Codex continues to read `version` from `.codex-plugin/plugin.json`.
+
 ## [0.1.0] - 2026-04-18
 
 Initial open-source release of Compass — a Claude Code and Codex plugin for families coordinating complex medical cases.

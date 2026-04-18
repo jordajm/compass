@@ -22,7 +22,7 @@ Produces a single release commit that bumps the plugin version, updates `CHANGEL
 Run these in order. Abort with a clear error if any fails.
 
 1. **Working tree clean.** `git status --porcelain` must return empty. If dirty, tell the user to commit or stash first.
-2. **Sync check.** Both `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` must have the same `version`. If `scripts/bump-version.sh --dry-run patch` exits non-zero, surface the error and stop.
+2. **Sync check.** The plugin-entry `version` in `.claude-plugin/marketplace.json` and the `version` in `.codex-plugin/plugin.json` must match. If `scripts/bump-version.sh --dry-run patch` exits non-zero, surface the error and stop.
 3. **On main (or release branch).** Warn, not fail, if on a feature branch.
 
 (The tag-collision check runs later — see the end of Step 2, once the candidate version is known.)
@@ -31,7 +31,7 @@ Run these in order. Abort with a clear error if any fails.
 
 ## Step 1 — Summarize the delta
 
-- Read current version from `.claude-plugin/plugin.json`.
+- Read current version from the plugin entry in `.claude-plugin/marketplace.json`.
 - Collect commit subjects since the last release tag:
   - If any tag matches `v*`: `git log "$(git describe --tags --abbrev=0 --match 'v*')..HEAD" --format='%s'`
   - Otherwise: `git log --format='%s' --reverse` (the whole history)
@@ -105,7 +105,7 @@ Adds release tooling.
 ## [0.1.0] - 2026-04-18
 <content>
 ```
-3. **Stage:** `git add .claude-plugin/plugin.json .codex-plugin/plugin.json CHANGELOG.md`
+3. **Stage:** `git add .claude-plugin/marketplace.json .codex-plugin/plugin.json CHANGELOG.md`
 4. **Commit:** message `Release v<new>` with the user's summary as the body. Include the Co-Authored-By trailer per the global commit convention.
 5. **Tag:** `git tag -a v<new> -m "<user summary>"`
 
@@ -135,7 +135,7 @@ Honors the project rule: never push without explicit user action.
 
 - **Sync mismatch before bump:** abort with a clear message; tell the user which file to inspect.
 - **bump-version.sh fails:** surface stderr verbatim; do not proceed to CHANGELOG or commit.
-- **CHANGELOG write fails:** revert the bump with `git checkout -- .claude-plugin/plugin.json .codex-plugin/plugin.json` and report.
+- **CHANGELOG write fails:** revert the bump with `git checkout -- .claude-plugin/marketplace.json .codex-plugin/plugin.json` and report.
 - **Commit fails (pre-commit hook or otherwise):** do not create the tag. Surface the error and let the user resolve. Never retry with `--no-verify`.
 - **Tag already exists:** warn (`v<new> already exists`) and offer to move it (`git tag -f`) only with explicit user confirmation.
 

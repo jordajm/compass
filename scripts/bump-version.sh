@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 # bump-version.sh
 #
-# Atomically bumps the plugin version across both plugin.json files.
-# The Claude Code client uses the `version` field in .claude-plugin/plugin.json
-# to detect updates — without a bump, cached users never see new code.
+# Atomically bumps the plugin version across the Claude marketplace entry and
+# the Codex plugin manifest. For Claude, the version lives in the plugin entry
+# inside .claude-plugin/marketplace.json (the Claude Code docs recommend this
+# for relative-path plugins: "For relative-path plugins, set the version in the
+# marketplace entry. For all other plugin sources, set it in the plugin
+# manifest."). For Codex, the version lives in .codex-plugin/plugin.json.
+# Without a bump, cached users never see new code.
 #
 # Usage:
 #   bash scripts/bump-version.sh patch    # 0.1.0 -> 0.1.1
@@ -12,12 +16,17 @@
 #   bash scripts/bump-version.sh --dry-run patch   # print, do not write
 #
 # Behavior:
-#   - Reads current version from .claude-plugin/plugin.json (source of truth).
-#   - Requires both plugin.json files to share the same X.Y.Z version.
+#   - Reads current version from .claude-plugin/marketplace.json (source of truth).
+#   - Requires the Claude marketplace entry and the Codex plugin.json to share the
+#     same X.Y.Z version.
 #   - Two-phase write: stage both tmpfiles and validate, then rename both.
 #     If staging fails for either file, nothing is renamed.
 #   - Replacement is string-anchored (no regex surprises from dots).
 #   - Prints: "bumped: <old> -> <new>"
+#
+# Assumption: marketplace.json contains exactly one "version" key (inside the
+# plugin entry). If a top-level metadata.version is later added, update this
+# script to target the plugin-entry version specifically.
 #
 # Requirements: bash, awk — no external dependencies.
 
@@ -26,7 +35,7 @@ set -euo pipefail
 # ── Constants ────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CLAUDE_JSON="$PLUGIN_ROOT/.claude-plugin/plugin.json"
+CLAUDE_JSON="$PLUGIN_ROOT/.claude-plugin/marketplace.json"
 CODEX_JSON="$PLUGIN_ROOT/.codex-plugin/plugin.json"
 DRY_RUN=false
 
@@ -86,7 +95,7 @@ if [[ -z "$CODEX_CURRENT" ]]; then
 fi
 
 if [[ "$CURRENT" != "$CODEX_CURRENT" ]]; then
-  echo "Error: plugin.json versions out of sync (claude=$CURRENT, codex=$CODEX_CURRENT)" >&2
+  echo "Error: versions out of sync (claude marketplace=$CURRENT, codex plugin=$CODEX_CURRENT)" >&2
   echo "Resolve manually before bumping." >&2
   exit 1
 fi

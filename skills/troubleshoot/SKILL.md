@@ -31,12 +31,12 @@ Run each check in order. Record status (`OK` / `WARN` / `CRITICAL` / `INFO` / `S
 
 ### Check 1: Plugin version
 
-Read `.claude-plugin/plugin.json` from the plugin install directory.
+Read the plugin version from the host-appropriate manifest.
 
-- Claude Code: inside the plugin's own directory (the dir containing this SKILL.md's parent's parent).
-- Codex: `~/.codex/plugins/compass/.claude-plugin/plugin.json`.
+- Claude (Code / Desktop): the plugin-entry `version` inside `.claude-plugin/marketplace.json`, located in the plugin's own install directory (the dir containing this SKILL.md's parent's parent).
+- Codex: the `version` field in `~/.codex/plugins/compass/.codex-plugin/plugin.json`.
 
-Report: `OK — version <X.Y.Z>, installed at <path>`. If file missing → `WARN — plugin.json not found at expected path`.
+Report: `OK — version <X.Y.Z>, installed at <path>`. If the manifest is missing → `WARN — version manifest not found at expected path`.
 
 ### Check 2: Working directory
 

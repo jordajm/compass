@@ -238,8 +238,10 @@ A silent 24-hour update check runs at the end of `/compass:update` and at the st
 
 1. Read `last_update_check` from the `<!-- compass:prefs -->` block in `~/.claude/CLAUDE.md` (or `~/.codex/AGENTS.md` per host).
 2. If missing or more than 24 hours ago:
-   - Read local version from `.claude-plugin/plugin.json` in the plugin install dir.
-   - `WebFetch https://raw.githubusercontent.com/jordajm/compass/main/.claude-plugin/plugin.json` with prompt "Return the value of the `version` field only."
+   - Read the local version per host:
+     - Claude (Code / Desktop): the plugin-entry `version` in `.claude-plugin/marketplace.json` inside the plugin install dir.
+     - Codex: the `version` field in `.codex-plugin/plugin.json`.
+   - `WebFetch https://raw.githubusercontent.com/jordajm/compass/main/.claude-plugin/marketplace.json` (Claude) or `.codex-plugin/plugin.json` (Codex) with prompt "Return the value of the `version` field only."
    - On WebFetch failure: skip silently, do not update `last_update_check` (retry next trigger).
    - On success: update `last_update_check` (today's date) and `last_known_version` in the prefs block, writing only within the delimiters.
 3. If local version is behind latest (numeric per-component compare: parse both as three integers `[major, minor, patch]` and compare tuple-wise; skip if either side fails to match `^\d+\.\d+\.\d+$`), surface a short nudge after the skill's normal output. The nudge is a header line plus one host-matching fix line; for host `unknown`, include both fix lines:
@@ -256,9 +258,9 @@ A newer Compass is available (<local> → <latest>). To update:
 
 ## Commit Protocol
 
-The Claude Code client caches plugins and only detects updates when the `version` in `.claude-plugin/plugin.json` changes. A commit that ships plugin code without a bump will never reach cached users. The rule below keeps the version moving forward on every shipped-surface change, and a dedicated skill (`/compass:release`) handles formal tagged releases.
+The Claude Code client caches plugins and only detects updates when the plugin-entry `version` in `.claude-plugin/marketplace.json` changes. (The Claude Code docs recommend this location for relative-path plugins over `plugin.json`.) The Codex host reads `version` from `.codex-plugin/plugin.json`. A commit that ships plugin code without a bump will never reach cached users. The rule below keeps the version moving forward on every shipped-surface change, and a dedicated skill (`/compass:release`) handles formal tagged releases.
 
-**Rule:** Every commit that modifies *shipped plugin surface* bumps the version in the same commit. Run `bash scripts/bump-version.sh <level>` before staging, then include the two `plugin.json` files in the commit alongside the change.
+**Rule:** Every commit that modifies *shipped plugin surface* bumps the version in the same commit. Run `bash scripts/bump-version.sh <level>` before staging, then include `.claude-plugin/marketplace.json` and `.codex-plugin/plugin.json` in the commit alongside the change.
 
 **Shipped surface (triggers a bump):**
 - `skills/`
@@ -284,8 +286,8 @@ The Claude Code client caches plugins and only detects updates when the `version
 
 **Mechanics:**
 1. Make the change.
-2. Run `bash scripts/bump-version.sh <patch|minor>` — this updates both `plugin.json` files atomically.
-3. Stage the change plus `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`.
+2. Run `bash scripts/bump-version.sh <patch|minor>` — this atomically updates the plugin-entry `version` in `.claude-plugin/marketplace.json` and the `version` in `.codex-plugin/plugin.json`.
+3. Stage the change plus `.claude-plugin/marketplace.json` and `.codex-plugin/plugin.json`.
 4. Commit. One commit contains one logical change plus its version bump.
 
 **Exceptions (no bump needed):**

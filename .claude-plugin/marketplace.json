@@ -10,6 +10,7 @@
     {
       "name": "compass",
       "source": "./",
+      "version": "0.2.1",
       "description": "Open-source AI coordination assistant for families navigating complex medical cases. Maintains a structured case knowledge base, coordinates a multi-user care team, runs tiered research with regulatory-status awareness, drafts audience-aware communications, and proactively flags risks and surveillance gaps."
     }
   ]
