@@ -242,7 +242,7 @@ A silent 24-hour update check runs at the end of `/compass:update` and at the st
    - `WebFetch https://raw.githubusercontent.com/jordajm/compass/main/.claude-plugin/plugin.json` with prompt "Return the value of the `version` field only."
    - On WebFetch failure: skip silently, do not update `last_update_check` (retry next trigger).
    - On success: update `last_update_check` (today's date) and `last_known_version` in the prefs block, writing only within the delimiters.
-3. If local version is behind latest (lexical semver compare on `X.Y.Z`; skip if parse fails), surface a short nudge after the skill's normal output. The nudge is a header line plus one host-matching fix line; for host `unknown`, include both fix lines:
+3. If local version is behind latest (numeric per-component compare: parse both as three integers `[major, minor, patch]` and compare tuple-wise; skip if either side fails to match `^\d+\.\d+\.\d+$`), surface a short nudge after the skill's normal output. The nudge is a header line plus one host-matching fix line; for host `unknown`, include both fix lines:
 
 ```
 A newer Compass is available (<local> → <latest>). To update:
@@ -251,6 +251,49 @@ A newer Compass is available (<local> → <latest>). To update:
 ```
 
 **Safety:** Never fail a skill on update-check failure. Never auto-update. Nudge only. `/compass:troubleshoot` forces a fresh check (bypassing the 24h cache) and still writes back `last_update_check` / `last_known_version` on success so the next interactive run benefits from the fresh cache.
+
+---
+
+## Commit Protocol
+
+The Claude Code client caches plugins and only detects updates when the `version` in `.claude-plugin/plugin.json` changes. A commit that ships plugin code without a bump will never reach cached users. The rule below keeps the version moving forward on every shipped-surface change, and a dedicated skill (`/compass:release`) handles formal tagged releases.
+
+**Rule:** Every commit that modifies *shipped plugin surface* bumps the version in the same commit. Run `bash scripts/bump-version.sh <level>` before staging, then include the two `plugin.json` files in the commit alongside the change.
+
+**Shipped surface (triggers a bump):**
+- `skills/`
+- `agents/`
+- `.claude-plugin/`
+- `.codex-plugin/`
+- `scripts/`
+- `templates/`
+- `hooks/`
+- Top-level `CLAUDE.md`
+
+**Non-shipping (no bump):**
+- `README.md`, `docs/`
+- `CHANGELOG.md`
+- `.gitignore`, `.editorconfig`, other repo meta
+- Anything under `patient/`, `care-team/`, or `config/` at the *repo root* (user-local runtime data, not shipped). Note: `templates/config/` is shipping — the shipping rule matches top-level directory prefixes, not basenames.
+- Any path matched by `.gitignore`
+
+**Bump level decision:**
+- **patch** — bug fixes, refactors, small tweaks, doc-adjacent changes inside a skill file, performance improvements with no behavioral change.
+- **minor** — a new skill directory, a new agent, a new top-level capability, or any user-visible feature addition.
+- **major** — only via `/compass:release` with explicit user confirmation. Reserved for breaking changes to case-file schemas, skill invocation contracts, or the plugin-surface layout. The first `1.0.0` cut also goes through `/compass:release`.
+
+**Mechanics:**
+1. Make the change.
+2. Run `bash scripts/bump-version.sh <patch|minor>` — this updates both `plugin.json` files atomically.
+3. Stage the change plus `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`.
+4. Commit. One commit contains one logical change plus its version bump.
+
+**Exceptions (no bump needed):**
+- Merges, reverts, and the release commit produced by `/compass:release` itself (it *is* the bump).
+- A commit that touches only non-shipping paths.
+- A commit that is itself rolling back or repairing a bad version (use judgment).
+
+**When in doubt, patch.** A spurious patch bump is harmless; a missing bump means the change never reaches cached users.
 
 ---
 
