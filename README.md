@@ -49,16 +49,17 @@ All connectors are optional except the folder. The agent degrades gracefully —
 
 ## Install — Claude Desktop
 
-1. Open Claude Desktop.
-2. Go to **Settings** → **Plugins**.
-3. In the marketplace input, paste:
+1. Sign up for a paid Claude account at [claude.com/pricing](https://claude.com/pricing). **Claude Max** ($100+/month) is recommended — Compass does heavy research and long multi-file sessions that benefit from the higher usage limits. Pro ($17–20/month) works for lighter use.
+2. Open Claude Desktop.
+3. Go to **Settings** → **Plugins**.
+4. In the marketplace input, paste:
    ```
    jordajm/compass
    ```
-4. Click **Add** — Claude Desktop fetches the marketplace entry.
-5. Click **Install** on the `compass` plugin listing.
-6. Create (or open) a folder for the patient's case. This is where Compass will store all case files. A Google-Drive-Desktop-synced folder works best so you can share it with your care team.
-7. In that folder, type `/compass:onboarding`. Compass will guide you through the rest.
+5. Click **Add** — Claude Desktop fetches the marketplace entry.
+6. Click **Install** on the `compass` plugin listing.
+7. Create (or open) a folder for the patient's case. This is where Compass will store all case files. A Google-Drive-Desktop-synced folder works best so you can share it with your care team.
+8. In that folder, type `/compass:onboarding`. Compass will guide you through the rest.
 
 For a fully-illustrated walkthrough, see [`docs/install-claude-desktop.md`](docs/install-claude-desktop.md). To set up hourly background updates via Claude Cowork, see [`docs/install-cowork-scheduled-task.md`](docs/install-cowork-scheduled-task.md).
 
