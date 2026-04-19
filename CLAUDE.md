@@ -46,8 +46,8 @@ If `patient/PROFILE.md` does not exist in the working directory, immediately beg
 
 Compass reads user-specific preferences from a delimited block in the host's user-level instruction file:
 
-- **Claude Code**: `~/.claude/CLAUDE.md`, inside `<!-- compass:prefs -->` ... `<!-- /compass:prefs -->`
-- **Codex**: `~/.codex/AGENTS.md`, inside `<!-- compass:prefs -->` ... `<!-- /compass:prefs -->`
+- **Claude Desktop**: `~/.claude/CLAUDE.md`, inside `<!-- compass:prefs -->` ... `<!-- /compass:prefs -->`
+- **Codex Desktop**: `~/.codex/AGENTS.md`, inside `<!-- compass:prefs -->` ... `<!-- /compass:prefs -->`
 
 Read this block at session start. Write back only within the block boundaries — never modify content outside the delimiters. If the block does not exist, create it when the user first expresses a preference.
 
@@ -192,16 +192,14 @@ Every draft — research report, email, briefing — must tag its intended audie
 
 ## Context Management Coaching
 
-Most Compass users are new to Claude Code or Codex and have no intuition for context windows or when to start a new chat. Proactively coach them.
+Most Compass users are new to Claude Desktop or Codex Desktop and have no intuition for context windows or when to start a new chat. Proactively coach them.
 
 **Rules:**
 
 - Watch for signs a session is getting long: many prior tool calls, large files read, multiple research passes. At natural break points, surface one sentence: "If we're at a good stopping point, this would be a fine moment to end this chat and start a fresh one — it will be faster for your next task."
 - Never interrupt a workflow mid-task. Only surface this at obvious completion points: after a report is written, after onboarding is done, after a batch of file ingestion completes.
 - Tailor the wording to the detected host:
-  - **Claude Code CLI**: "type `/clear` to start a fresh session"
-  - **Claude Code Desktop**: "click 'New chat' in the sidebar or type `/clear`"
-  - **Codex CLI**: "type `/new` or exit and re-run codex"
+  - **Claude Desktop**: "click 'New chat' in the sidebar or type `/clear`"
   - **Codex Desktop**: "click 'New session'"
 - In ingestion mode, always recommend a new chat between batches — each batch is a natural break point.
 - When starting `/compass:research` on a complex question, give a heads-up: "This may take a few minutes and use significant context. After we're done, you'll want to start a fresh chat for your next task."
@@ -248,8 +246,8 @@ A silent 24-hour update check runs at the end of `/compass:update` and at the st
 
 ```
 A newer Compass is available (<local> → <latest>). To update:
-  Claude Code: /plugin marketplace update compass then reinstall
-  Codex:       cd ~/.codex/plugins/compass && git pull && bash scripts/build-codex.sh
+  Claude Desktop: /plugin marketplace update compass then reinstall
+  Codex Desktop:  cd ~/.codex/plugins/compass && git pull && bash scripts/build-codex.sh
 ```
 
 **Safety:** Never fail a skill on update-check failure. Never auto-update. Nudge only. `/compass:troubleshoot` forces a fresh check (bypassing the 24h cache) and still writes back `last_update_check` / `last_known_version` on success so the next interactive run benefits from the fresh cache.
@@ -258,7 +256,7 @@ A newer Compass is available (<local> → <latest>). To update:
 
 ## Commit Protocol
 
-The Claude Code client caches plugins and only detects updates when the plugin-entry `version` in `.claude-plugin/marketplace.json` changes. (The Claude Code docs recommend this location for relative-path plugins over `plugin.json`.) The Codex host reads `version` from `.codex-plugin/plugin.json`. A commit that ships plugin code without a bump will never reach cached users. The rule below keeps the version moving forward on every shipped-surface change, and a dedicated skill (`/compass:release`) handles formal tagged releases.
+Claude Desktop caches plugins and only detects updates when the plugin-entry `version` in `.claude-plugin/marketplace.json` changes. (The upstream plugin docs recommend this location for relative-path plugins over `plugin.json`.) Codex Desktop reads `version` from `.codex-plugin/plugin.json`. A commit that ships plugin code without a bump will never reach cached users. The rule below keeps the version moving forward on every shipped-surface change, and a dedicated skill (`/compass:release`) handles formal tagged releases.
 
 **Rule:** Every commit that modifies *shipped plugin surface* bumps the version in the same commit. Run `bash scripts/bump-version.sh <level>` before staging, then include `.claude-plugin/marketplace.json` and `.codex-plugin/plugin.json` in the commit alongside the change.
 

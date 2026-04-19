@@ -4,7 +4,7 @@ description: Deep research pipeline for a medical question about the case. Coord
 
 # /compass:research — Deep Research Orchestrator
 
-Invoked as: `/compass:research "question"` (Claude Code / Desktop) or `@research "question"` (Codex)
+Invoked as: `/compass:research "question"` (Claude Desktop) or `@research "question"` (Codex)
 
 This skill orchestrates a full deep research pipeline for any medical case question. It coordinates specialized agents to produce thorough, evidence-based research reports grounded in the patient's actual case data. Every recommendation includes explicit regulatory status and access pathway information.
 

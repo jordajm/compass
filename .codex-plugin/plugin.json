@@ -1,6 +1,6 @@
 {
   "name": "compass",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "AI coordination assistant for complex medical cases",
   "author": {
     "name": "John Jordan"
@@ -11,7 +11,7 @@
   "interface": {
     "displayName": "Compass",
     "shortDescription": "Coordinate complex medical cases",
-    "longDescription": "Open-source AI coordination assistant for families navigating complex medical cases. Tracks case knowledge, coordinates care teams, drafts emails, manages to-dos, runs deep research with regulatory awareness, and flags proactive considerations. Works on Claude Code and Codex. All case data stays on your machine.",
+    "longDescription": "Open-source AI coordination assistant for families navigating complex medical cases. Tracks case knowledge, coordinates care teams, drafts emails, manages to-dos, runs deep research with regulatory awareness, and flags proactive considerations. Works on Claude Desktop and Codex Desktop. All case data stays on your machine.",
     "developerName": "John Jordan",
     "category": "Productivity",
     "capabilities": [

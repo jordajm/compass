@@ -4,7 +4,7 @@ description: CRUD interface over the care team roster and external contacts. Add
 
 # /compass:contacts — Care Team & Contact Management
 
-Invoked as: `/compass:contacts [action] [args]` (Claude Code / Desktop) or `@contacts [action] [args]` (Codex).
+Invoked as: `/compass:contacts [action] [args]` (Claude Desktop) or `@contacts [action] [args]` (Codex).
 
 CRUD interface over `care-team/ROSTER.md` (internal care-team members who use Compass) and `care-team/contacts.md` (external doctors, consultants, advocates, administrators, researchers).
 
@@ -95,9 +95,9 @@ To get set up on your machine:
 
 1. Install Google Drive Desktop if you don't have it: google.com/drive/download
 2. Find "Compass — {{Patient}}" in your Drive (it's shared with you).
-3. Install Compass in either Claude Code (claude.com/code) or Codex
+3. Install Compass in either Claude Desktop (claude.ai/download) or Codex Desktop
    (platform.openai.com/codex). Ask me which you'd prefer — I can help with either.
-4. Open the shared folder in Compass and type /onboarding (Claude) or @onboarding (Codex).
+4. Open the shared folder in Compass and type /onboarding (Claude Desktop) or @onboarding (Codex Desktop).
    It'll recognize the existing case and walk you through the rest.
 
 Your role is {{role}}. Compass will filter to-dos to what's assigned to you by default.

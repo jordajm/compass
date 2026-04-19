@@ -76,18 +76,20 @@
 
 | Field | Value |
 |---|---|
-| **Hourly `/update`** | {{enabled / disabled}} |
-| **Scheduler** | {{`cowork-scheduled-task` \| `codex-automation` \| `cron` \| `none`}} |
-| **Cron expression** | {{e.g., `0 * * * *` for top-of-hour; empty if using Cowork/Codex in-app scheduler or disabled}} |
+| **Hourly `/update` configured** | {{yes / no}} |
+| **Scheduler** | {{`cowork-scheduled-task` \| `codex-automation` \| `none`}} |
+| **Task installed** | {{`confirmed` \| `unconfirmed` \| `declined`}} |
 | **Hook-triggered `/update` on new file drop** | {{enabled / disabled}} |
 
 **Notes**:
 - Scheduled `/update` runs with the `--scheduled` flag — fully non-interactive, skips anything that would prompt, tolerates missing / expired connectors.
-- **Preferred scheduler by host:**
-  - **Claude Desktop (Cowork):** use the built-in **Scheduled tasks** feature. Walkthrough with screenshots: https://github.com/jordajm/compass/blob/main/docs/install-cowork-scheduled-task.md
-  - **Codex desktop:** use the built-in **Automations** feature (Standalone, custom schedule `0 * * * *`). Walkthrough: https://github.com/jordajm/compass/blob/main/docs/install-codex-automations.md
-  - **Claude Code CLI / Codex CLI:** use the OS `crontab` (macOS / Linux) or Task Scheduler (Windows). Example line for hourly runs:
-    `0 * * * * cd /path/to/case-folder && claude -p "/compass:update --scheduled && /compass:briefing --if-due"`
+- **Scheduler by host:**
+
+  | Host | Scheduler | Walkthrough |
+  |---|---|---|
+  | Claude Desktop | Cowork **Scheduled tasks** | https://github.com/jordajm/compass/blob/main/docs/install-cowork-scheduled-task.md |
+  | Codex Desktop | **Automations** (Standalone, custom schedule `0 * * * *`) | https://github.com/jordajm/compass/blob/main/docs/install-codex-automations.md |
+
 - Hook-triggered runs use `hooks/hooks.json` in the plugin — see that file for enablement instructions.
 
 ---
@@ -96,7 +98,7 @@
 
 | Field | Value |
 |---|---|
-| **Detected host** | {{`claude-code-cli` \| `claude-desktop` \| `codex-cli` \| `codex-desktop`}} |
+| **Detected host** | {{`claude-desktop` \| `codex-desktop`}} |
 | **Last detected on** | {{YYYY-MM-DD}} |
 
 Compass re-detects the host at session start. This field records the most recent detection for troubleshooting.

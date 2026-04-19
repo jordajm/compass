@@ -3,8 +3,8 @@
 # Preferences
 
 > This file mirrors the per-user preferences stored in the delimited `<!-- compass:prefs -->` block in your host-level memory file:
-> - Claude Code: `~/.claude/CLAUDE.md`
-> - Codex: `~/.codex/AGENTS.md`
+> - Claude Desktop: `~/.claude/CLAUDE.md`
+> - Codex Desktop: `~/.codex/AGENTS.md`
 >
 > The host-level block is the source of truth that follows you across cases. This file is a case-local copy for reference and for new team members to see the current user's settings.
 > When you change a preference here, Compass also updates the corresponding block in your host-level memory file.

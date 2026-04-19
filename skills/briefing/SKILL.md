@@ -4,7 +4,7 @@ description: Configure or send the optional daily email briefing — top priorit
 
 # /compass:briefing — Email Briefing Configuration & Send
 
-Invoked as: `/compass:briefing [action]` (Claude Code / Desktop) or `@briefing [action]` (Codex).
+Invoked as: `/compass:briefing [action]` (Claude Desktop) or `@briefing [action]` (Codex).
 
 Configures and sends an optional email briefing summarizing what's new, due, and coming up. Opt-in; requires an email connector. Sent on a schedule (default: daily at 7am local) or on-demand.
 
@@ -17,7 +17,7 @@ Configures and sends an optional email briefing summarizing what's new, due, and
 | (none) | Show current config + when next briefing is due |
 | `configure` | Interactive config flow (cadence, recipients, content toggles, send mode) |
 | `send` | Assemble and send/draft a briefing now |
-| `--if-due` | No-op unless the scheduled cadence says we're due; called by cron |
+| `--if-due` | No-op unless the scheduled cadence says we're due; called by the in-app scheduled task (Cowork Scheduled task on Claude Desktop, Codex Automation on Codex Desktop) |
 | `preview` | Show what the next briefing would contain — don't send |
 
 ---
@@ -59,7 +59,12 @@ Interactive flow to update `config/briefing.md`. For each setting, show the curr
 
 Write back to `config/briefing.md`. Stamp `last_updated` + `updated_by`.
 
-If the user enabled scheduled cadence, remind them about the cron / scheduled-task setup (reference to `hooks/hooks.json` or OS crontab — see `config/connectors.md#Scheduled-tasks`).
+If the user enabled scheduled cadence and no scheduled task / automation is installed yet, walk them through the in-app setup for the detected host:
+
+- **claude-desktop** → Cowork **Scheduled tasks** — see [`docs/install-cowork-scheduled-task.md`](../../docs/install-cowork-scheduled-task.md).
+- **codex-desktop** → Codex **Automations** — see [`docs/install-codex-automations.md`](../../docs/install-codex-automations.md).
+
+If onboarding already generated a scheduled-task prompt and the user installed it, just confirm: the same scheduled task runs `/compass:update --scheduled && /compass:briefing --if-due`, so briefings flow through it — no second scheduler to install.
 
 ---
 
@@ -114,7 +119,7 @@ Write `last_briefing_sent: {{now}}` to `config/briefing.md`. This feeds the `--i
 
 ## Action: --if-due
 
-Called by cron / scheduled task. Non-interactive.
+Called by the host's scheduled task (Cowork Scheduled task or Codex Automation). Non-interactive.
 
 1. Read `config/briefing.md`. If `enabled != yes`, exit silently.
 2. Compute whether we're at / past the next scheduled time based on cadence + `last_briefing_sent`.

@@ -69,4 +69,4 @@ What goes into each briefing. Turn sections off if they're noisy.
 | **Last briefing sent** | {{YYYY-MM-DD HH:MM — auto-updated by `/briefing send`}} |
 | **Next due** | {{computed from cadence + last sent}} |
 
-Compass uses these fields to decide whether `/briefing --if-due` should run when called by cron.
+Compass uses these fields to decide whether `/briefing --if-due` should run when called by the scheduled task.

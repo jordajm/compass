@@ -4,7 +4,7 @@ description: Cut a formal Compass release — bump version, update CHANGELOG, co
 
 # /compass:release — Cut a Tagged Release
 
-Invoked as: `/compass:release` (Claude Code / Desktop) or `@release` (Codex).
+Invoked as: `/compass:release` (Claude Desktop) or `@release` (Codex).
 
 Produces a single release commit that bumps the plugin version, updates `CHANGELOG.md`, and creates an annotated git tag. Never pushes — prints the push command for the user to run manually.
 
@@ -170,4 +170,4 @@ Release v0.4.0 committed and tagged locally. To publish:
 ## Host notes
 
 - **Codex:** the shell calls in this skill work identically. Invoke as `@release`.
-- **Claude Code CLI / Desktop:** `/compass:release`. On Desktop, the user will still see the shell output in the tool-call UI.
+- **Claude Desktop:** `/compass:release`. The user will see the shell output in the tool-call UI.

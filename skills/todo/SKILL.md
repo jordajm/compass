@@ -4,7 +4,7 @@ description: Manage the care team's shared to-do list, organized by workstream a
 
 # /compass:todo — To-Do & Workstream Tracker
 
-Invoked as: `/compass:todo` or `/compass:todo "command"` (Claude Code / Desktop) or `@todo "command"` (Codex)
+Invoked as: `/compass:todo` or `/compass:todo "command"` (Claude Desktop) or `@todo "command"` (Codex)
 
 This skill manages the care team's shared to-do list. It tracks action items across workstreams, supports multi-user attribution and assignee scoping, can ingest emails and files to extract new items, and helps prioritize what needs attention.
 

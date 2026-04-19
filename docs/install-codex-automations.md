@@ -68,13 +68,13 @@ In the project selector, pick the Compass project you set up during onboarding. 
 
 ---
 
-## Step 6 — Set the schedule (hourly via cron)
+## Step 6 — Set the schedule (hourly)
 
-Unlike Claude Cowork, Codex doesn't have a one-click "Hourly" preset. Pick **Custom** and enter `0 * * * *` (top of every hour).
+Unlike Claude Cowork, Codex doesn't have a one-click "Hourly" preset. Pick **Custom** and enter `0 * * * *` (top of every hour). Codex's Custom-schedule field accepts cron-style expressions — that's just the format of the field; you aren't installing anything at the OS level.
 
 If you want a less frequent check-in, Codex also offers Daily and Weekly presets. For Compass's purposes, hourly is the recommended cadence.
 
-*(Screenshot placeholder: `codex-06-schedule-cron.png`.)*
+*(Screenshot placeholder: `codex-06-schedule-custom.png`.)*
 
 ---
 

@@ -1,6 +1,6 @@
 # Installing Compass in Claude Desktop
 
-This guide walks through installing the Compass plugin in Claude Desktop, step by step. If you prefer the CLI, see the "Claude Code CLI" section in the main [README](../README.md#install--claude-code).
+This guide walks through installing the Compass plugin in Claude Desktop, step by step.
 
 > **Disclaimer:** Compass is for informational purposes only to support conversations with your medical team. It does not constitute medical advice. All treatment decisions should be made in consultation with your treating physicians.
 
@@ -129,7 +129,7 @@ Compass is now installed, but it has no case file yet. To set one up:
 
 ## Troubleshooting
 
-- **The marketplace fails to sync.** Check that you typed `jordajm/compass` exactly, with the slash and no leading `@`. If the network is restricted, the plugin can also be installed via the CLI (see README).
+- **The marketplace fails to sync.** Check that you typed `jordajm/compass` exactly, with the slash and no leading `@`. If the network is restricted, check your connection and retry.
 - **The Compass card does not appear under Personal.** Refresh the Directory by closing and reopening it, or quit and relaunch Claude Desktop.
 - **`/compass:` commands do not appear in the chat.** Make sure the toggle on the Compass plugin page is enabled (it should be on by default after install).
 - **Compass complains it cannot find `patient/PROFILE.md`.** That file is created during `/compass:onboarding`. Run that skill once and it will be created in your case folder.

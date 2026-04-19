@@ -4,7 +4,7 @@ description: Guided first-run setup for a new case, or abbreviated onboarding fo
 
 # /compass:onboarding — First-Run Setup & Team Member Onboarding
 
-Invoked as: `/compass:onboarding` (Claude Code / Desktop) or `@onboarding` (Codex)
+Invoked as: `/compass:onboarding` (Claude Desktop) or `@onboarding` (Codex)
 
 This skill guides a new user through Compass setup in a paced, conversational flow. It detects whether this is a fresh case or an existing shared case, and routes accordingly. State is saved after each step so onboarding can be interrupted and resumed.
 
@@ -12,18 +12,16 @@ This skill guides a new user through Compass setup in a paced, conversational fl
 
 ## Pre-Step: Detect Host Environment
 
-Before any greeting, identify the host:
+Before any greeting, identify the host. Compass supports only two hosts: **Claude Desktop** (which ships Cowork) and **Codex Desktop**.
 
 ```
-CLAUDECODE env var present and = "1"  → host = "claude-code-cli"
-CLAUDE_DESKTOP env var present        → host = "claude-desktop"   (has Cowork built in)
-CODEX env var present                 → host = "codex"            (ambiguous: CLI or desktop app)
-Otherwise                             → host = "unknown" (treat as claude-code-cli)
+CODEX env var present  → host = "codex-desktop"
+Otherwise              → host = "claude-desktop"
 ```
 
 Store `host` — it determines wording in Steps 8 and 9.
 
-**Codex CLI vs desktop app disambiguation.** The `CODEX` env var is set by both the CLI and the desktop app; there's no clean way to tell them apart programmatically. If `host == "codex"` and we reach Step 9 (scheduling), ask the user one question: "Are you using the Codex desktop app or the Codex CLI?" and update `host` to `codex-desktop` or `codex-cli` before routing. No disambiguation is needed for Claude Desktop — all Claude Desktop builds ship Cowork, so `claude-desktop` always routes to Cowork Scheduled tasks.
+**Legacy state migration.** If `config/onboarding-state.md` (or the `<!-- compass:prefs -->` block) records `host` as `claude-code-cli`, `codex-cli`, `codex`, or `unknown`, treat the stored value as missing. Re-detect using the rule above and write the corrected value back silently on first read. Compass no longer supports CLI hosts; if a user is genuinely running CLI, they fall through to `claude-desktop` wording and the first scheduling step will point them at Claude Desktop.
 
 ---
 
@@ -48,13 +46,40 @@ Read `config/onboarding-state.md` if it exists. It records which steps are compl
 last_updated: YYYY-MM-DD HH:MM
 completed_steps: [1, 2, 3]
 in_progress_step: 4
+onboarding_complete: false
 data:
   user_name: ...
   patient_name: ...
   ...
+automation:
+  hourly_updates:
+    configured: true | false
+    installed: confirmed | unconfirmed | declined
+  daily_briefing:
+    enabled: true | false
+    send_mode: draft-only | auto-send-after-preview | auto-send-no-preview
 ```
 
-If steps are already complete, greet the user by name, summarize what's done, and resume at `in_progress_step`. If state file does not exist, start at Step 1.
+Branch on state:
+
+- **No state file** → start at Step 1.
+- **Partially complete** (`onboarding_complete` absent or false, `in_progress_step` set) → greet the user by name, summarize what's done, and resume at `in_progress_step`.
+- **Fully complete** (`onboarding_complete: true`) → do **not** re-run the full flow. Greet the user, print a short summary of what's set up from state (patient, user, host, connectors, scheduled-task status, briefing cadence), then ask:
+
+  > Everything looks set up. Is there a step you want to redo, or something to add? I can revisit any of: **who's on the team**, **connectors**, **scheduled updates & briefings**, **documents folder**. Or just tell me what's off.
+
+  Map the user's answer to a step and re-run just that step (not the full flow):
+
+  | User says | Re-run step |
+  |---|---|
+  | "team" / "roster" / "add a member" | Step 6 |
+  | "documents" / "storage folder" / "Drive path" | Step 7 |
+  | "connectors" / "Gmail" / "Calendar" | Step 8 |
+  | "scheduled" / "hourly" / "briefing" / "automation" | Step 9 |
+
+  When re-entering Step 9 from a revisit, read the existing `automation.*` values from state and ask "did you actually install the Cowork Scheduled task / Codex Automation yet?" before marking it complete. Do not assume a previously-stored `hourly_updates.installed: confirmed` is still accurate — re-verify.
+
+  If the user names nothing specific, suggest `/compass:update` or `/compass:todo` and exit.
 
 Save state to `config/onboarding-state.md` after each step completes. Create the `config/` directory if needed.
 
@@ -274,13 +299,12 @@ For any connector the user wants to add, warn first, then give host-specific ins
 
 | Host | Gmail / Calendar / other connectors |
 |------|--------------------------------------|
-| claude-code-cli | Add to `.mcp.json` in project root; `claude mcp add` command |
 | claude-desktop | Settings → Connectors → pick the provider → sign in → **on the Google / Microsoft consent screen, check every permission box** → click Allow |
-| codex | Edit `~/.codex/config.toml` — add the server entry. When the OAuth consent screen opens in the browser, check every permission box before clicking Allow. |
+| codex-desktop | Edit `~/.codex/config.toml` — add the server entry. When the OAuth consent screen opens in the browser, check every permission box before clicking Allow. |
 
 #### Post-connection capability probe
 
-After the user adds a connector, don't trust "connected" — probe each required scope. Use `ToolSearch` to resolve the exact MCP tool names the current host exposes (they're namespaced like `mcp__claude_ai_Gmail__gmail_list_drafts` in Claude Desktop; Codex and CLI hosts use different prefixes). Then invoke one tool per scope and report the outcome inline.
+After the user adds a connector, don't trust "connected" — probe each required scope. Use `ToolSearch` to resolve the exact MCP tool names the current host exposes (they're namespaced like `mcp__claude_ai_Gmail__gmail_list_drafts` in Claude Desktop; Codex Desktop uses different prefixes). Then invoke one tool per scope and report the outcome inline.
 
 | Connector | Scopes to verify | Capability probes (resolve exact tool names via `ToolSearch`) |
 |-----------|-----------------|---------------------------------------------------------------|
@@ -321,16 +345,12 @@ Ask:
 > - **Hourly updates**: Compass runs `/compass:update --scheduled` in the background and flags anything new.
 > - **Daily email briefing**: A summary email each morning (requires Gmail or Outlook connector).
 
-If they want hourly updates, route based on the detected host. The Claude Desktop and Codex desktop apps both have first-class schedulers (Cowork **Scheduled tasks** and Codex **Automations** respectively) — prefer those over cron for the Desktop hosts. Cron is only for the CLI hosts.
-
-If `host == "codex"`, ask first: "Are you using the Codex desktop app or the Codex CLI?" and update the state variable to `codex-desktop` or `codex-cli` before picking the row. `claude-desktop` always routes to Cowork — no disambiguation needed.
+If they want hourly updates, route based on the detected host. Compass supports only Desktop hosts — Claude Desktop uses Cowork **Scheduled tasks**, Codex Desktop uses **Automations**. There is no CLI path and no cron path.
 
 | Host | Setup |
 |------|-------|
 | claude-desktop | Use Cowork's built-in **Scheduled tasks** feature (ships with every Claude Desktop build). Sidebar → **Scheduled** → **New task** → paste the Compass prompt (generated below) → click **Work in a project** and pick the Compass project → **Frequency: Hourly** → **Save**. Step-by-step guide with screenshots: [`docs/install-cowork-scheduled-task.md`](../../docs/install-cowork-scheduled-task.md). |
 | codex-desktop | Use Codex's built-in **Automations** feature. Sidebar → **Automations** → new automation → **Standalone** → paste the Compass prompt (generated below) → scope to the Compass project → **Custom schedule: `0 * * * *`** → **Save**. Step-by-step guide: [`docs/install-codex-automations.md`](../../docs/install-codex-automations.md). |
-| claude-code-cli | `crontab -e` → add: `0 * * * * claude -p "/compass:update --scheduled && /compass:briefing --if-due" --cwd [working_directory]` |
-| codex-cli | `crontab -e` → add: `0 * * * * codex run "@update --scheduled" --cwd [working_directory]` |
 
 #### Generate and display the scheduled-task prompt (Desktop hosts)
 
@@ -353,6 +373,27 @@ Display the prompt in a copyable code block, then add host-matching copy:
 
 - **claude-desktop:** "Paste this into the Description field when you create the Cowork Scheduled task. Set Frequency to Hourly and click **Work in a project** to select your Compass project. The step-by-step walkthrough with screenshots is at [`docs/install-cowork-scheduled-task.md`](../../docs/install-cowork-scheduled-task.md)."
 - **codex-desktop:** "Paste this into the Prompt field when you create the Codex Automation. Choose **Standalone** and scope it to your Compass project. For hourly, pick a custom schedule and enter `0 * * * *`. The step-by-step walkthrough is at [`docs/install-codex-automations.md`](../../docs/install-codex-automations.md)."
+
+#### Installation checkpoint — do not mark complete on assent alone
+
+After the user picks a host and the skill displays the generated scheduled-task prompt, **wait for confirmation before marking automation installed**. The previous behavior of flipping `hourly_updates: true` after a "yes please" caused Compass to claim automation was active when nothing had been created in the host UI.
+
+Ask:
+
+> Let me know when you've created the [Cowork Scheduled task / Codex Automation] — I'll wait. Or, if you'd rather set it up later, I'll note that it's not installed yet and remind you next time you run `/compass:update`.
+
+Write the state using the split schema:
+
+```yaml
+automation:
+  hourly_updates:
+    configured: true        # user chose a cadence
+    installed: confirmed    # when user reports the task/automation is created
+    # or installed: unconfirmed — user said "later"
+    # or installed: declined — user opted out of hourly updates
+```
+
+Treat `installed: unconfirmed` as the default until the user explicitly confirms creation. Do not fabricate `confirmed`.
 
 If they want daily briefing:
 - Ask for preferred send time (default: 7:00 AM local)
@@ -409,8 +450,8 @@ Create `reports/` and `meeting-notes/` directories.
 #### Write user preferences to global config:
 
 Determine the preferences block target:
-- claude-code-cli / claude-desktop → `~/.claude/CLAUDE.md`
-- codex → `~/.codex/AGENTS.md`
+- claude-desktop → `~/.claude/CLAUDE.md`
+- codex-desktop → `~/.codex/AGENTS.md`
 
 Read the file. Find the `<!-- compass:prefs -->` block. If it exists, update it. If not, append it at the end. Write only within the delimiters — never touch content outside them.
 
@@ -450,9 +491,8 @@ Host-specific closing note:
 
 | Host | Note |
 |------|------|
-| claude-code-cli | "Type `/clear` when you start a new task to keep things fast." |
 | claude-desktop | "Use 'New chat' in the sidebar between tasks to keep things fast." |
-| codex | "Start a new session between tasks to keep things fast." |
+| codex-desktop | "Start a new session between tasks to keep things fast." |
 
 Mark all steps complete in `config/onboarding-state.md`.
 

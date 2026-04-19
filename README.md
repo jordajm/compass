@@ -12,7 +12,7 @@ Compass is an AI co-pilot that fills that coordination gap. It maintains a struc
 
 Compass is built on the same principles as a great medical advocate: it knows the case cold, thinks two steps ahead, asks the questions no one else is asking, and never lets something fall through the cracks. It is not a replacement for doctors or medical judgment. It is a force multiplier for the family doing the hardest work of their lives.
 
-Compass works equally on Claude Code and Codex. It requires only a folder it can read and write — no servers, no databases, no subscriptions beyond your AI subscription. Your case files stay on your machine and your cloud storage. Nothing is sent anywhere else.
+Compass works equally on Claude Desktop and Codex Desktop. It requires only a folder it can read and write — no servers, no databases, no subscriptions beyond your AI subscription. Your case files stay on your machine and your cloud storage. Nothing is sent anywhere else.
 
 ---
 
@@ -29,7 +29,7 @@ Compass works equally on Claude Code and Codex. It requires only a folder it can
 - **Hourly scheduled updates** — optional background task that checks for new information and flags material changes without prompting for input.
 - **Proactive considerations** — agent flags risks, missed surveillance opportunities, and preparatory steps — written to `patient/considerations.md` and surfaced in every briefing.
 - **Multi-user** — family members, advocates, and care team members all use the same shared case folder, with to-do items assignable by name and every change attributed.
-- **Multi-host** — works identically in Claude Code (Desktop and CLI) and Codex (CLI and Desktop). One install, both platforms.
+- **Multi-host** — works in Claude Desktop (with Cowork for scheduled tasks) and Codex Desktop (with Automations). Pick whichever app you're already using.
 
 ---
 
@@ -47,11 +47,7 @@ All connectors are optional except the folder. The agent degrades gracefully —
 
 ---
 
-## Install — Claude Code
-
-Compass works on both Claude Code CLI and Claude Desktop. Desktop is easier for non-technical users; CLI is faster once you've set it up.
-
-### Claude Desktop (recommended for most users)
+## Install — Claude Desktop
 
 1. Open Claude Desktop.
 2. Go to **Settings** → **Plugins**.
@@ -65,23 +61,6 @@ Compass works on both Claude Code CLI and Claude Desktop. Desktop is easier for 
 7. In that folder, type `/compass:onboarding`. Compass will guide you through the rest.
 
 For a fully-illustrated walkthrough, see [`docs/install-claude-desktop.md`](docs/install-claude-desktop.md). To set up hourly background updates via Claude Cowork, see [`docs/install-cowork-scheduled-task.md`](docs/install-cowork-scheduled-task.md).
-
-### Claude Code CLI
-
-Run these two commands inside any Claude Code session:
-
-```
-/plugin marketplace add jordajm/compass
-/plugin install compass@compass
-```
-
-The first command registers the marketplace; the second installs the `compass` plugin from it. Then:
-
-```
-cd /path/to/your/case-folder
-```
-
-…and type `/compass:onboarding` in Claude Code. The onboarding skill walks you through everything else.
 
 ### Testing a local copy (for developers)
 
@@ -131,8 +110,8 @@ Once the Codex plugin directory lists Compass, you will be able to install from 
 
 Once installed, start the onboarding conversation:
 
-- **Claude Code**: type `/compass:onboarding`
-- **Codex**: type `@onboarding`
+- **Claude Desktop**: type `/compass:onboarding`
+- **Codex Desktop**: type `@onboarding`
 
 Compass will ask you a series of questions — who the patient is, their condition, where you are in treatment, who else is on the care team — and build the case files from your answers. If you have existing medical records, drop them in a `documents/` folder and Compass will read them in batches. No config files to edit.
 
@@ -160,10 +139,10 @@ If anything feels off at any point, run `/compass:troubleshoot` (or `@troublesho
 Gmail is optional. If you haven't configured the Gmail connector, Compass will skip email steps and continue. To enable Gmail, follow the connector setup instructions in `/compass:onboarding` or run it again and choose the Gmail option.
 
 **"My case files aren't being read."**
-Make sure you're running Compass from the correct working directory — the folder containing `patient/PROFILE.md`. In Claude Code CLI, `cd` to that folder before launching. In Claude Desktop, open the folder as a project.
+Make sure you're running Compass from the correct working directory — the folder containing `patient/PROFILE.md`. In Claude Desktop, open the folder as a project. In Codex Desktop, select the matching project.
 
 **"I'm getting context-limit errors or the session feels slow."**
-Start a fresh chat. Long sessions with many files read accumulate context quickly. In Claude Code, type `/clear` or open a new chat. In Codex, start a new thread. Compass saves its state to files so nothing is lost.
+Start a fresh chat. Long sessions with many files read accumulate context quickly. In Claude Desktop, click "New chat" or type `/clear`. In Codex Desktop, start a new session. Compass saves its state to files so nothing is lost.
 
 **"The agent keeps asking me who I am."**
 Configure the Gmail connector (or Outlook). Compass identifies you by matching your connected email account against the care team roster. Without an email connector, it asks at the start of each session. You can also set your name in the `<!-- compass:prefs -->` block in `~/.claude/CLAUDE.md`.

@@ -4,7 +4,7 @@ description: Produce a concise prep file for an upcoming meeting or call — who
 
 # /compass:prep — Meeting & Call Prep
 
-Invoked as: `/compass:prep "<meeting description>"` (Claude Code / Desktop) or `@prep "<description>"` (Codex). Can also be auto-triggered by `/compass:update` when an upcoming calendar event is within the next 2 days and no prep file exists.
+Invoked as: `/compass:prep "<meeting description>"` (Claude Desktop) or `@prep "<description>"` (Codex). Can also be auto-triggered by `/compass:update` when an upcoming calendar event is within the next 2 days and no prep file exists.
 
 Produces a concise, actionable prep file for an upcoming meeting — who the contact is, what you've discussed before, relevant recent developments, and suggested questions. Optimized for quick review before a call, not for deep research.
 

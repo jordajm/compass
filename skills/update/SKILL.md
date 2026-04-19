@@ -1,17 +1,42 @@
 ---
-description: Daily catch-up — scans new files, emails, calendar, meeting transcripts, and notes since last run; updates the case knowledge base and to-do list; runs a proactive considerations pass; prints a morning briefing. Use when the user asks for a catch-up, says "what's new", or starts their day with Compass. Also invoked with --scheduled for cron and --ingest for batch file processing.
+description: Daily catch-up — scans new files, emails, calendar, meeting transcripts, and notes since last run; updates the case knowledge base and to-do list; runs a proactive considerations pass; prints a morning briefing. Use when the user asks for a catch-up, says "what's new", or starts their day with Compass. Also invoked with --scheduled by the in-app scheduled task and --ingest for batch file processing.
 ---
 
 # /compass:update — Daily Catch-Up
 
-Invoked as: `/compass:update` or `/compass:update "last 3 days"` or `/compass:update --scheduled` or `/compass:update --ingest` (Claude Code / Desktop) or `@update …` (Codex)
+Invoked as: `/compass:update` or `/compass:update "last 3 days"` or `/compass:update --scheduled` or `/compass:update --ingest` (Claude Desktop) or `@update …` (Codex)
 
 This skill runs the daily catch-up in one command: scans new files in the case folder, checks Apple Notes for recent meeting notes, pulls meeting transcripts from Fireflies (or Otter), checks the calendar for upcoming meetings, scans email for action items, updates the to-do list, runs a proactive considerations pass, and prints a morning briefing.
 
 **Flags:**
-- `--scheduled` — non-interactive mode for cron invocation. Skips any step that would prompt. Never blocks waiting for input.
+- `--scheduled` — non-interactive mode for scheduled invocation (Cowork Scheduled task or Codex Automation). Skips any step that would prompt. Never blocks waiting for input.
 - `--ingest` — large-volume document ingestion mode. Enumerates `documents/`, hash-compares against `config/ingestion-log.md`, processes a bounded batch (default 15 files or ~80k tokens), updates the ingestion log.
 - `--reingest <filename>` — force re-ingestion of a specific file regardless of hash match.
+
+---
+
+## Step 0.0: Host Migration
+
+Compass supports only Claude Desktop and Codex Desktop. Before any other check, read the stored `host` from `config/onboarding-state.md` and the `<!-- compass:prefs -->` block. If either records `claude-code-cli`, `codex-cli`, `codex`, or `unknown`, treat it as missing:
+
+```
+CODEX env var present  → host = "codex-desktop"
+Otherwise              → host = "claude-desktop"
+```
+
+Write the corrected value back silently to both locations on first read. If env-var detection fails and no stored value can be trusted, ask once: "Are you on Claude Desktop or Codex Desktop?"
+
+---
+
+## Step 0.1: Check Scheduled-Task Installation
+
+Read `config/onboarding-state.md`. If `automation.hourly_updates.configured: true` but `automation.hourly_updates.installed != confirmed` (i.e., `unconfirmed`, missing, or any legacy `hourly_updates: true` value without the `installed` key), print one line at the start of the interactive run:
+
+> Heads up — your hourly scheduled task isn't confirmed installed. Run `/compass:onboarding` and pick "scheduled updates" to finish setting it up.
+
+Do not print this in `--scheduled` mode (the scheduled run proves the task exists — update state to `installed: confirmed` when entering `--scheduled` mode and exit this check silently).
+
+Legacy state migration: if the file contains the old boolean `hourly_updates: true` with no `installed` field, treat it as `configured: true, installed: unconfirmed` and write the corrected shape back silently.
 
 ---
 
@@ -357,9 +382,8 @@ After the briefing, if the session has been long (many tool calls, large files r
 > "This is a natural stopping point. Starting a fresh chat for your next task will be faster."
 
 Host-specific wording:
-- claude-code-cli: "Type `/clear` or start a new session."
 - claude-desktop: "Click 'New chat' in the sidebar or type `/clear`."
-- codex: "Start a new session."
+- codex-desktop: "Start a new session."
 
 ---
 

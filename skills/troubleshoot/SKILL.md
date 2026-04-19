@@ -4,7 +4,7 @@ description: Diagnose Compass setup problems. Checks plugin version, case file i
 
 # /compass:troubleshoot — Health Check & Diagnostics
 
-Invoked as: `/compass:troubleshoot` (Claude Code / Desktop) or `@troubleshoot` (Codex)
+Invoked as: `/compass:troubleshoot` (Claude Desktop) or `@troubleshoot` (Codex)
 
 This skill runs a read-only health check of the current Compass installation and case folder, then prints a single table of results plus copyable fixes. It never auto-repairs anything that writes to user-owned files.
 
@@ -12,14 +12,14 @@ This skill runs a read-only health check of the current Compass installation and
 
 ## Pre-Step: Detect Host Environment
 
-Identify the host exactly as in `skills/onboarding/SKILL.md`:
+Identify the host exactly as in `skills/onboarding/SKILL.md`. Compass supports only Claude Desktop and Codex Desktop:
 
 ```
-CLAUDECODE env var present and = "1"  → host = "claude-code-cli"
-CLAUDE_DESKTOP env var present        → host = "claude-desktop"
-CODEX env var present                 → host = "codex"
-Otherwise                             → host = "unknown"
+CODEX env var present  → host = "codex-desktop"
+Otherwise              → host = "claude-desktop"
 ```
+
+If stored state records a legacy host (`claude-code-cli`, `codex-cli`, `codex`, or `unknown`), treat it as missing, re-detect with the rule above, and write the corrected value back silently on first read.
 
 Store `host` — it determines which fix strings are shown (Gmail reconnect path, update command, fresh-chat wording).
 
@@ -65,8 +65,8 @@ Read `config/onboarding-state.md` if present.
 
 Open the host-level memory file:
 
-- `claude-code-cli` or `claude-desktop` → `~/.claude/CLAUDE.md`
-- `codex` → `~/.codex/AGENTS.md`
+- `claude-desktop` → `~/.claude/CLAUDE.md`
+- `codex-desktop` → `~/.codex/AGENTS.md`
 
 Locate `<!-- compass:prefs -->` and `<!-- /compass:prefs -->`. Validate:
 
@@ -123,14 +123,12 @@ Best-effort heuristic based on this-session tool-call volume (rough threshold: m
 
 When a check suggests a fix, tailor the wording:
 
-| Fix | claude-code-cli | claude-desktop | codex |
-|---|---|---|---|
-| Gmail reconnect | Edit `.mcp.json` in project root and re-run `claude mcp add`. | Settings → Connectors → Gmail. | Edit `~/.codex/config.toml` Gmail server entry. |
-| Calendar reconnect | Edit `.mcp.json`. | Settings → Connectors → Google Calendar. | Edit `~/.codex/config.toml`. |
-| Update command | `/plugin marketplace update compass` then reinstall. | `/plugin marketplace update compass` then reinstall. | `cd ~/.codex/plugins/compass && git pull && bash scripts/build-codex.sh` |
-| Fresh chat | Type `/clear`. | Click "New chat" or type `/clear`. | Start a new session. |
-
-If host is `unknown`, show both Claude Code and Codex fix lines.
+| Fix | claude-desktop | codex-desktop |
+|---|---|---|
+| Gmail reconnect | Settings → Connectors → Gmail. | Edit `~/.codex/config.toml` Gmail server entry. |
+| Calendar reconnect | Settings → Connectors → Google Calendar. | Edit `~/.codex/config.toml`. |
+| Update command | `/plugin marketplace update compass` then reinstall. | `cd ~/.codex/plugins/compass && git pull && bash scripts/build-codex.sh` |
+| Fresh chat | Click "New chat" or type `/clear`. | Start a new session. |
 
 ---
 

@@ -4,7 +4,7 @@ description: Draft emails, search the inbox, and read threads related to the cas
 
 # /compass:email — Email Drafting & Inbox
 
-Invoked as: `/compass:email "command"` (Claude Code / Desktop) or `@email "command"` (Codex)
+Invoked as: `/compass:email "command"` (Claude Desktop) or `@email "command"` (Codex)
 
 This skill helps draft emails, search inboxes, and read threads related to care coordination. It assembles relevant case context from the patient's files so every email is precise and informed.
 

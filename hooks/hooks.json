@@ -1,5 +1,5 @@
 {
-  "_comment": "Compass optional hooks. Disabled by default. The onboarding skill asks whether you want to enable automatic ingestion and briefings — if you say yes, it writes the appropriate settings. To enable manually, set your project .claude/settings.json 'hooks' block to include these entries.",
+  "_comment": "Compass optional hooks. Disabled by default. These examples shell out to the standalone `claude` CLI; Compass itself only supports the Desktop hosts (Claude Desktop and Codex Desktop), so hourly background runs are handled by Cowork Scheduled tasks (Claude Desktop) and Codex Automations (Codex Desktop) — configured in /compass:onboarding Step 9, not here. The hook examples below remain for users who also have the Claude Code CLI installed separately and want Write/Stop-triggered behavior. To enable one manually, copy the entry into your project .claude/settings.json 'hooks' block.",
 
   "hooks": {
     "PostToolUse": [
@@ -30,11 +30,5 @@
         ]
       }
     ]
-  },
-
-  "_scheduled_task": {
-    "_comment": "For hourly background updates (configured during onboarding), Compass uses a crontab entry. The onboarding skill writes this when you opt in to scheduled updates.",
-    "crontab_example": "0 * * * * cd \"$COMPASS_CASE_DIR\" && claude -p '/compass:update --scheduled' --no-interactive >> ~/.compass/update.log 2>&1",
-    "_note": "Replace $COMPASS_CASE_DIR with the absolute path to your case folder."
   }
 }
