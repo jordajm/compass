@@ -12,7 +12,7 @@ Compass is an AI co-pilot that fills that coordination gap. It maintains a struc
 
 Compass is built on the same principles as a great medical advocate: it knows the case cold, thinks two steps ahead, asks the questions no one else is asking, and never lets something fall through the cracks. It is not a replacement for doctors or medical judgment. It is a force multiplier for the family doing the hardest work of their lives.
 
-Compass works equally on Claude Desktop and Codex Desktop. It requires only a folder it can read and write — no servers, no databases, no subscriptions beyond your AI subscription. Your case files stay on your machine and your cloud storage. Nothing is sent anywhere else.
+Compass runs inside **Claude Cowork** (a product within Claude Desktop — distinct from the Claude Chatbot and Claude Code surfaces) and inside **Codex Desktop**. It requires only a folder it can read and write — no servers, no databases, no subscriptions beyond your AI subscription. Your case files stay on your machine and your cloud storage. Nothing is sent anywhere else.
 
 ---
 
@@ -29,7 +29,7 @@ Compass works equally on Claude Desktop and Codex Desktop. It requires only a fo
 - **Hourly scheduled updates** — optional background task that checks for new information and flags material changes without prompting for input.
 - **Proactive considerations** — agent flags risks, missed surveillance opportunities, and preparatory steps — written to `patient/considerations.md` and surfaced in every briefing.
 - **Multi-user** — family members, advocates, and care team members all use the same shared case folder, with to-do items assignable by name and every change attributed.
-- **Multi-host** — works in Claude Desktop (with Cowork for scheduled tasks) and Codex Desktop (with Automations). Pick whichever app you're already using.
+- **Multi-host** — runs as a **Claude Cowork** plugin inside Claude Desktop (not the Chatbot or Claude Code surfaces) and as a Codex Desktop plugin. Background tasks use Cowork's scheduler on Claude, Automations on Codex.
 
 ---
 
@@ -47,10 +47,12 @@ All connectors are optional except the folder. The agent degrades gracefully —
 
 ---
 
-## Install — Claude Desktop
+## Install — Claude Cowork (inside Claude Desktop)
+
+> Compass is a **Claude Cowork** plugin. Cowork is one of three surfaces bundled in Claude Desktop (the others are Claude Chatbot and Claude Code). The plugin marketplace and scheduled tasks used by Compass only exist inside Cowork — installing or running Compass in the Chatbot or Claude Code surfaces will not work.
 
 1. Sign up for a paid Claude account at [claude.com/pricing](https://claude.com/pricing). **Claude Max** ($100+/month) is recommended — Compass does heavy research and long multi-file sessions that benefit from the higher usage limits. Pro ($17–20/month) works for lighter use.
-2. Open Claude Desktop.
+2. Open Claude Desktop and switch to **Cowork** (left sidebar → **Customize**; this is the Cowork workspace where plugins live).
 3. Go to **Settings** → **Plugins**.
 4. In the marketplace input, paste:
    ```
